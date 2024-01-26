@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+if [[ -n $UPDATE_ON_START ]]; then
+    steamcmd +force_install_dir "$APP_DIR" +login anonymous +app_update $APP_ID validate +quit
+fi
+
 SETTINGS_FILE="$CONFIG_DIR/PalWorldSettings.ini"
 if [[ ! -f $SETTINGS_FILE ]]; then
     echo "No config found, creating default config"
