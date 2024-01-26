@@ -9,10 +9,10 @@ ENV APP_ID=2394010 \
 	CONFIG_DIR="/config/palworld" \
 	DATA_DIR="/data/palworld"
 
-RUN mkdir -p "$APP_DIR/Pal/Saved/Config" "$CONFIG_DIR" "$DATA_DIR" && \
-	ln -s "$CONFIG_DIR" "$APP_DIR/Pal/Saved/Config/LinuxServer" && \
-	ln -s "$DATA_DIR" "$APP_DIR/Pal/Saved/SaveGames"  && \
-	steamcmd +force_install_dir "$APP_DIR" +login anonymous +app_update $APP_ID validate +quit
+RUN mkdir -p "$APP_DIR/Pal/Saved/Config" "$CONFIG_DIR" "$DATA_DIR" \
+	&& ln -s "$CONFIG_DIR" "$APP_DIR/Pal/Saved/Config/LinuxServer" \
+	&& ln -s "$DATA_DIR" "$APP_DIR/Pal/Saved/SaveGames" \
+	&& steamcmd +force_install_dir "$APP_DIR" +login anonymous +app_update $APP_ID validate +quit
 
 VOLUME [ "$APP_DIR", "$CONFIG_DIR", "$DATA_DIR" ]
 
