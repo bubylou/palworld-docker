@@ -1,0 +1,55 @@
+name: Docker Update
+
+on:
+  schedule:
+   - cron: "0 */8 * * *"
+  workflow_dispatch:
+
+jobs:
+  update-check:
+    runs-on: ubuntu-latest
+    outputs:
+      current: ${{ steps.current.outputs.version }}
+      latest: ${{ steps.latest.outputs.version }}
+      tag: ${{ steps.git.outputs.tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current container game version
+        id: current
+        run: |
+          echo "version=$(cat .github/current-version)" >> "$GITHUB_OUTPUT"
+      - name: Get latest steam game version
+        id: latest
+        run: |
+          echo "version=$(curl --silent 'https://api.steamcmd.net/v1/info/2394010' | jq '.data."2394010".depots.branches.public.buildid' -r)" >> "$GITHUB_OUTPUT"
+
+      - name: Update current version file
+        if: ${{ steps.current.outputs.version < steps.latest.outputs.version }}
+        id: git
+        run: |
+          echo ${{ steps.latest.outputs.version }} > .github/current-version
+          git config --global user.email "no-reply@github.com"
+          git config --global user.name "GitHub Actions"
+          git add .github/current-version
+          git commit -m "Auto update to latest steam build"
+          git tag "$(git describe --tags --abbrev=0 | awk -F '.' '/^v/{print $1"."$2"."$3+1}')"
+          echo "tag=$(git describe --tags)" >> "$GITHUB_OUTPUT"
+          git push
+          git push --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  call-workflow:
+    needs: update-check
+    if: ${{ needs.update-check.outputs.current < needs.update-check.outputs.latest }}
+    uses: bubylou/palworld-docker/.github/workflows/docker-publish.yml@main
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    with:
+      tag: ${{ needs.update-check.outputs.tag }}

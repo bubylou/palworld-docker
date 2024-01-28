@@ -35,7 +35,7 @@ For other changes you can modify `/config/palworld/PalWorldSettings.ini`, please
 
 ## Docker Run example
 
-```yml
+```bash
 docker run -d \
     --name palworld \
     -p 8211:8211/udp \
