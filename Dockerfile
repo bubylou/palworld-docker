@@ -30,6 +30,9 @@ ENV UPDATE_ON_START=true \
 	RCON_ENABLED=false \
 	RCON_PORT=25575
 
+HEALTHCHECK --start-period=5m \
+	CMD pgrep "PalServer-Linux" > /dev/null || exit 1
+
 EXPOSE $GAME_PORT/udp $RCON_PORT/tcp
 ADD docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT [ "/docker-entrypoint.sh" ]

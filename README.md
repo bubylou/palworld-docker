@@ -33,7 +33,9 @@ These variables modify some of the game configuration options.
 
 For other changes you can modify `/config/palworld/PalWorldSettings.ini`, please refer to https://tech.palworldgame.com/optimize-game-balance.
 
-## Docker Run example
+## Examples
+
+### Docker Run
 
 ```bash
 docker run -d \
@@ -45,7 +47,7 @@ docker run -d \
     bubylou/palworld:latest
 ```
 
-## Docker-Compose example
+### Docker-Compose
 
 ```yml
 version: '3.9'
@@ -72,7 +74,11 @@ services:
       - 8211:8211/udp
       - 27015:27015/tcp # required for RCON
     volumes:
-      - ./palworld/app:/app/palworld # game server files
-      - ./palworld/config:/config/palworld # palworld config files
-      - ./palworld/data:/data/palworld # game/world save
+      - palworld-app:/app/palworld # game server files
+      - palworld-config:/config/palworld # palworld config files
+      - palworld-data:/data/palworld # game/world save
+volumes:
+  palworld-app:
+  palworld-config:
+  palworld-data:
 ```
