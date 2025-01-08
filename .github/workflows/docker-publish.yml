@@ -36,7 +36,7 @@ jobs:
         uses: sigstore/cosign-installer@v3.7.0
 
       - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v3.7.1
+        uses: docker/setup-buildx-action@v3.8.0
 
       # Login against a Docker registry except on PR
       - name: Log into registry ${{ env.REGISTRY }}
@@ -70,7 +70,6 @@ jobs:
             type=semver,pattern=v{{major}}.{{minor}}
             type=ref,event=branch,suffix=-{{ sha }}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=ref,event=pr
             type=raw,event=workflow_dispatch,value=${{ inputs.tag }}
 
       # Build and push Docker image with Buildx (don't push on PR)
@@ -84,12 +83,15 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           targets: release-all
 
-      # Sign the resulting Docker image digest except on PRs.
+      # Sign the resulting Docker images digest except on PRs.
       - name: Sign the published Docker image
         if: ${{ github.event_name != 'pull_request' }}
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.bake.outputs.digest }}
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+        run: |
+          images=""
+          for tag in ${TAGS}; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes ${images}
