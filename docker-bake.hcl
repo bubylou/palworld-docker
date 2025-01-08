@@ -13,6 +13,9 @@ variable "REPO" {
 variable "TAG" {
   default = "latest"
 }
+
+target "docker-metadata-action" {}
+
 target "build" {
   context = "."
   dockerfile = "Dockerfile"
@@ -23,7 +26,7 @@ target "build" {
 }
 
 target "release" {
-  inherits = ["build"]
+  inherits = ["build", "docker-metadata-action"]
   context = "."
   dockerfile = "Dockerfile"
   cache-from = ["type=gha"]

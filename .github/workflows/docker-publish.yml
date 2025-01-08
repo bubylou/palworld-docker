@@ -51,17 +51,20 @@ jobs:
 
       # Extract metadata (tags, labels) for Docker
       - name: Extract Docker metadata
+        if: github.event_name != 'pull_request'
         id: meta
-        uses: docker/metadata-action@v5.5.0
+        uses: docker/metadata-action@v5.6.1
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            docker.io/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern=v{{version}}
             type=semver,pattern=v{{major}}.{{minor}}
             type=ref,event=branch,suffix=-{{ sha }}
+            type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=pr
             type=raw,event=workflow_dispatch,value=${{ inputs.tag }}
-            type=raw,value=latest,enable={{is_default_branch}}
 
       # Build and push Docker image with Buildx (don't push on PR)
       - name: Build and push Docker image
