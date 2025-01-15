@@ -1,9 +1,9 @@
 group "default" {
-  targets = ["build"]
+  targets = ["build-dev", "build-full"]
 }
 
 group "release-all" {
-  targets = ["release"]
+  targets = ["release", "release-full"]
 }
 
 variable "REPO" {
@@ -29,6 +29,15 @@ target "build-dev" {
   cache-to = ["type=inline"]
 }
 
+target "build-full" {
+  inherits = ["build"]
+  args = {
+    "RELEASE" = "full"
+  }
+  tags = ["ghcr.io/${REPO}:latest-full", "ghcr.io/${REPO}:${TAG}-full",
+          "docker.io/${REPO}:latest-full", "docker.io/${REPO}:${TAG}-full"]
+}
+
 target "docker-metadata-action" {}
 
 target "release" {
@@ -40,4 +49,8 @@ target "release" {
     "type=provenance,mode=max",
     "type=sbom"
   ]
+}
+
+target "release-full" {
+  inherits = ["build-full", "release"]
 }

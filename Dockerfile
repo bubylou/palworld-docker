@@ -25,8 +25,11 @@ USER ${USER}
 # Link game directories to volumes and install palworld
 RUN mkdir -p "${APP_DIR}/Pal/Saved/Config" "${CONFIG_DIR}" "${DATA_DIR}" \
 	&& ln -s "${CONFIG_DIR}" "${APP_DIR}/Pal/Saved/Config/LinuxServer" \
-	&& ln -s "${DATA_DIR}" "${APP_DIR}/Pal/Saved/SaveGames" \
-	&& steamcmd +force_install_dir "${APP_DIR}" +login anonymous +app_update ${APP_ID} validate +quit
+	&& ln -s "${DATA_DIR}" "${APP_DIR}/Pal/Saved/SaveGames"
+
+ARG RELEASE=slim
+RUN if [ "$RELEASE" = "full" ]; then steamcmd +force_install_dir "${APP_DIR}" \
+	+login anonymous +app_update "${APP_ID}" validate +quit; fi
 
 ENV UPDATE_ON_START=true \
 	MULTITHREAD_ENABLE=true \
