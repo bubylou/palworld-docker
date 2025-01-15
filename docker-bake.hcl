@@ -52,5 +52,6 @@ target "release" {
 }
 
 target "release-full" {
-  inherits = ["build-full", "release"]
+  # Order matters here, need tags from build-full
+  inherits = ["release", "build-full"]
 }
